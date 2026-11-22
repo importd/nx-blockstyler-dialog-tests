@@ -32,12 +32,18 @@ class CppPatchTests(unittest.TestCase):
 class DlxPatchTests(unittest.TestCase):
     SRC = ('<Dialog><item id="enum0"><PropertyList>'
            '<Property id="Titles" type="utfstrings" sname="Items"/>'
+           '<Property id="Titles_1" type="enum" sname="Value"/>'
            '</PropertyList></item></Dialog>')
 
     def test_adds_three_titles(self):
         out = P.patch_dlx(self.SRC)
         for v in ("A", "B", "C"):
             self.assertIn('value="%s"' % v, out)
+
+    def test_adds_titles_1_options(self):
+        out = P.patch_dlx(self.SRC)
+        for v in ("A", "B", "C"):
+            self.assertIn('name="%s"' % v, out)
 
     def test_is_idempotent(self):
         once = P.patch_dlx(self.SRC)

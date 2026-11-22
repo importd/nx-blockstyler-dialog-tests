@@ -42,6 +42,10 @@ def _dlx_repl(match):
         return (tag[:-2] + '>'
                 '<Strings value="A"/><Strings value="B"/><Strings value="C"/>'
                 '</Property>')
+    if 'id="Titles_1"' in tag and 'type="enum"' in tag:
+        return (tag[:-2] + '>'
+                '<Option name="A" value="0"/><Option name="B" value="1"/>'
+                '<Option name="C" value="2"/></Property>')
     return tag
 
 

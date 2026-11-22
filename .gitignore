@@ -1,0 +1,8 @@
+tmp/
+*.dll
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.bak

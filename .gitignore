@@ -10,3 +10,4 @@ application/
 __pycache__/
 *.pyc
 build/
+docs/superpowers/

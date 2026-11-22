@@ -15,6 +15,19 @@ HOOK_BLOCK = ('#ifdef AUTODLG_TEST\n'
 _TAG_RE = re.compile(r"<Property\b[^>]*/>")
 
 
+def _matching_brace(text, open_index):
+    """Index just past the brace matching the one at open_index."""
+    depth = 0
+    for i in range(open_index, len(text)):
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return i + 1
+    raise RuntimeError("unbalanced braces in dialogShown_cb")
+
+
 def patch_cpp(text):
     if "AUTODLG_HOOK" not in text:
         marker = "void baseDialog::dialogShown_cb()"
@@ -25,7 +38,11 @@ def patch_cpp(text):
         brace = text.find("{", try_pos) if try_pos >= 0 else -1
         if try_pos < 0 or brace < 0:
             raise RuntimeError("try block not found in dialogShown_cb")
-        text = text[:brace + 1] + "\n" + HOOK_BLOCK + "\n" + text[brace + 1:]
+        # Insert at the END of the try body, after the callback's own init:
+        # blocks must be initialised before cases are injected.
+        end = _matching_brace(text, brace)
+        close = end - 1
+        text = text[:close] + HOOK_BLOCK + "\n" + text[close:]
     if "autodlg_test.h" not in text:
         marker = '#include "baseDialog.hpp"'
         if marker not in text:

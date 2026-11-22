@@ -28,6 +28,21 @@ class CppPatchTests(unittest.TestCase):
         twice = P.patch_cpp(once)
         self.assertEqual(once, twice)
 
+    def test_hook_runs_after_existing_callback_body(self):
+        src = (
+            '#include "baseDialog.hpp"\n'
+            'void baseDialog::dialogShown_cb()\n'
+            '{\n'
+            '    try\n    {\n'
+            '        self_init_blocks();\n'
+            '    }\n'
+            '    catch(exception& ex)\n    {\n    }\n'
+            '}\n'
+        )
+        out = P.patch_cpp(src)
+        self.assertLess(out.index("self_init_blocks()"),
+                        out.index("AUTODLG_HOOK"))
+
 
 class DlxPatchTests(unittest.TestCase):
     SRC = ('<Dialog><item id="enum0"><PropertyList>'

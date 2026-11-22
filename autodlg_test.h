@@ -149,11 +149,30 @@ inline HWND find_dialog() {
     return found;
 }
 
-inline bool post_close() {
-    HWND h = find_dialog();
-    if (h == NULL) return false;
-    PostMessageW(h, WM_CLOSE, 0, 0);
-    return true;
+inline bool is_our_dialog(HWND h) {
+    if (h == NULL || !IsWindow(h) || !IsWindowVisible(h)) return false;
+    char cls[256] = {0};
+    GetClassNameA(h, cls, sizeof(cls));
+    if (strcmp(cls, "#32770") != 0) return false;
+    return has_child(h, "UGS::BlockStyler::DialogCreator", 0) ||
+           has_child(h, "Afx:", 1);
+}
+
+inline HWND wait_dialog(int max_ms, int *waited) {
+    int spent = 0;
+    for (;;) {
+        HWND h = find_dialog();
+        if (h != NULL) {
+            if (waited != NULL) *waited = spent;
+            return h;
+        }
+        if (spent >= max_ms) {
+            if (waited != NULL) *waited = spent;
+            return NULL;
+        }
+        Sleep(50);
+        spent += 50;
+    }
 }
 
 struct ThreadState {
@@ -165,27 +184,27 @@ struct ThreadState {
 inline unsigned __stdcall close_thread(void *param) {
     ThreadState *st = reinterpret_cast<ThreadState *>(param);
     if (st->no_close) return 0;
-    /* The dialog's child windows appear slightly after dialogShown_cb; retry
-     * until find_dialog() can see it. */
-    for (int i = 0; i < 8; ++i) {
-        Sleep(i == 0 ? 600 : 400);
-        if (post_close()) return 0;
-    }
+    /* The dialog's child windows appear slightly after dialogShown_cb. */
+    HWND h = wait_dialog(3200, NULL);
+    if (h != NULL) PostMessageW(h, WM_CLOSE, 0, 0);
     return 0;
 }
 
 inline unsigned __stdcall watch_thread(void *param) {
     ThreadState *st = reinterpret_cast<ThreadState *>(param);
-    Sleep(static_cast<DWORD>(st->timeout_ms));
-    if (st->no_close) {
-        if (find_dialog() != NULL && st->kill_on_hang)
-            TerminateProcess(GetCurrentProcess(), 3);
-        return 0;
+    /* Bind to THIS case's dialog. A watchdog that wakes up after Show() has
+     * returned must never touch a later case's dialog. */
+    int spent = 0;
+    HWND h = wait_dialog(3200, &spent);
+    if (h == NULL) return 0;
+    int remaining = st->timeout_ms - spent;
+    if (remaining > 0) Sleep(static_cast<DWORD>(remaining));
+    if (!is_our_dialog(h)) return 0;   /* already closed: nothing to do */
+    if (!st->no_close) {
+        PostMessageW(h, WM_CLOSE, 0, 0);
+        Sleep(1000);
     }
-    if (find_dialog() == NULL) return 0;
-    post_close();
-    Sleep(1000);
-    if (find_dialog() != NULL && st->kill_on_hang)
+    if (is_our_dialog(h) && st->kill_on_hang)
         TerminateProcess(GetCurrentProcess(), 3);
     return 0;
 }

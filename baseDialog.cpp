@@ -301,12 +301,12 @@ baseDialog::~baseDialog()
     {
         try
         {
-#ifdef AUTODLG_TEST
-    AUTODLG_HOOK(theDialog, "selection0", "enum0", "linear_dim0");
-#endif
 
             //---- Enter your callback code here -----
-        }
+        #ifdef AUTODLG_TEST
+    AUTODLG_HOOK(theDialog, "selection0", "enum0", "linear_dim0");
+#endif
+}
         catch(exception& ex)
         {
             //---- Enter your exception handling code here -----

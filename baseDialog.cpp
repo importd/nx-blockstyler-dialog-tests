@@ -36,6 +36,9 @@
 //------------------------------------------------------------------------------
 #define USER_EXIT_OR_MENU 1
 #include "baseDialog.hpp"
+#ifdef AUTODLG_TEST
+#include "autodlg_test.h"
+#endif
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -298,6 +301,10 @@ baseDialog::~baseDialog()
     {
         try
         {
+#ifdef AUTODLG_TEST
+    AUTODLG_HOOK(theDialog, "selection0", "enum0", "linear_dim0");
+#endif
+
             //---- Enter your callback code here -----
         }
         catch(exception& ex)

@@ -1,0 +1,11 @@
+{
+  "part": null,
+  "cases": [
+    {"name": "defaults", "expect": {"shown": 1, "selection0": 0, "enum0": 0, "linear_dim0": 0.0}},
+    {"name": "set_enum", "set": {"enum0": 2}, "expect": {"enum0": 2}},
+    {"name": "set_dim", "set": {"linear_dim0": 12.5}, "expect": {"linear_dim0": 12.5}},
+    {"name": "select_body", "set": {"selection0": "first_body"}, "expect": {"selection0": 1}},
+    {"name": "apply", "set": {"enum0": 1, "linear_dim0": 3.0}, "apply": true,
+     "expect": {"apply_rc": 0, "hook_ran": 1}}
+  ]
+}

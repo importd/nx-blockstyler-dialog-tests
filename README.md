@@ -6,18 +6,18 @@
 ## 构建
 
 ```bat
-build.bat          :: 生成 baseDialog_test.dll（含 AUTODLG_TEST 钩子）
-build.bat prod     :: 生成 baseDialog.dll（生产，无钩子）
-python check_prod.py baseDialog.dll   :: 确认生产 DLL 无钩子
+scripts\build.bat          :: 生成 build\baseDialog_test.dll（含 AUTODLG_TEST 钩子）
+scripts\build.bat prod     :: 生成 build\baseDialog.dll（生产，无钩子）
+python tools\check_prod.py build\baseDialog.dll   :: 确认生产 DLL 无钩子
 ```
 
 依赖：NX 10、VS2019、无空格 junction `C:\Users\feather\nx10 -> NX 安装目录`。
-`build.bat` 会把 `baseDialog.dlx` 复制到 `application\`。
+DLL 输出到 `build\`；脚本会把 `src\baseDialog.dlx` 复制到 `application\`。
 
 ## 启动
 
 ```bat
-launch.bat
+scripts\launch.bat
 ```
 
 它设置 `UGII_USER_DIR=E:\Code\auto-dialog` 以及固定的
@@ -27,13 +27,13 @@ launch.bat
 - **MCP（推荐，全自动）**：
   ```python
   import sys
-  sys.path.insert(0, r"E:\Code\auto-dialog")
+  sys.path.insert(0, r"E:\Code\auto-dialog\harness")
   import run_cases
-  run_cases.main(cases_path=r"E:\Code\auto-dialog\cases.json", dry_run=False)
+  run_cases.main(cases_path=r"E:\Code\auto-dialog\harness\cases.json", dry_run=False)
   ```
-- **NX 菜单**：`Tools → Journal → Play...`，选 `run_cases.py`。
+- **NX 菜单**：`Tools → Journal → Play...`，选 `harness\run_cases.py`。
 
-> 本机实测 `ugraf.exe -journal <py>` 不会执行 journal，所以 `launch.bat` 不用它。
+> 本机实测 `ugraf.exe -journal <py>` 不会执行 journal，所以 `scripts\launch.bat` 不用它。
 
 ## 结果
 
@@ -71,8 +71,8 @@ launch.bat
 Block Styler 重新生成 `.cpp/.dlx` 后：
 
 ```bat
-python autodlg_patch.py --cpp baseDialog.cpp --dlx baseDialog.dlx
-build.bat
+python tools\autodlg_patch.py --cpp src\baseDialog.cpp --dlx src\baseDialog.dlx
+scripts\build.bat
 ```
 
 补丁会加 `USER_EXIT_OR_MENU`、测试钩子一行，以及枚举 A/B/C 的 `Titles`/`Titles_1`。

@@ -410,7 +410,7 @@ bool kill_on_hang;
     - `PropertyTypeDouble`：`SetDouble("Value", atof(v))`；`got[id] = to_string(GetDouble("Value"))`。
     - 其他：`error = "unsupported:" + id`。
   - 单个块失败只记 `error`，继续处理其它块。
-- `finish`：先写 `out_path`（`shown=1`、`hook_ran=1`、`apply_rc`、`error`、`got.*`、`close_attempted` = `no_close ? 0 : 1`），关闭文件；然后 `_beginthreadex` 起关窗线程（延迟 600ms：枚举本进程可见顶层窗口，找 class=`#32770` 且子控件含 `UGS::BlockStyler::DialogCreator` 的窗口，`PostMessageW(hwnd, WM_CLOSE, 0, 0)`）和看门狗线程（等 `timeout_ms`；若对话框仍在，再发 `WM_CLOSE`；再等 1000ms；仍在且 `kill_on_hang` 则 `ExitProcess(3)`）。`no_close` 时跳过第一次关窗，只走看门狗。ESC 只作最后兜底。
+- `finish`：先写 `out_path`（`shown=1`、`hook_ran=1`、`apply_rc`、`error`、`got.*`、`close_attempted` = `no_close ? 0 : 1`），关闭文件；然后 `_beginthreadex` 起关窗线程（延迟 600ms：枚举本进程可见顶层窗口，找 class=`#32770` 且子控件含 `UGS::BlockStyler::DialogCreator` 的窗口，`PostMessageW(hwnd, WM_CLOSE, 0, 0)`）和看门狗线程（等 `timeout_ms`；若对话框仍在，再发 `WM_CLOSE`；再等 1000ms；仍在且 `kill_on_hang` 则 `TerminateProcess(GetCurrentProcess(), 3)`，不要用 `ExitProcess`——模态对话框期间从后台线程 `ExitProcess` 会触发 NX `0xC000000D`）。`no_close` 时跳过第一次关窗，只走看门狗。ESC 只作最后兜底。
 - 头文件里 `#include <windows.h> <process.h> <map> <string> <vector> <cstdlib> <cstdio>` 和 NXOpen 的 `BlockStyler_BlockDialog.hxx`、`BlockStyler_PropertyList.hxx`、`Part.hxx`、`BodyCollection.hxx`、`NXException.hxx`。
 
 - [ ] **Step 2: 写 test 构建包装 `baseDialog_test.cpp`**

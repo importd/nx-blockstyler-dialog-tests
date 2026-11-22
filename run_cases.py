@@ -20,19 +20,25 @@ def _tmp(tmp_dir):
     return tmp_dir or os.path.join(HERE, "tmp")
 
 
+SAMPLE_PART = (r"D:\Program Files\Siemens\NX 10.0\UGII"
+               r"\drafting_welcome\sample_parts\flange.prt")
+
+
 def ensure_part(session, NXOpen, tmp_dir):
     part = session.Parts.Work
     if part is not None and list(part.Bodies):
         return part
-    path = os.path.join(tmp_dir, "harness_part.prt")
-    part = session.Parts.NewDisplay(path, NXOpen.PartUnits.Millimeters)
-    ufs = NXOpen.UF.UFSession.GetUFSession()
-    ufs.Modl.CreateBlock1(0, [0.0, 0.0, 0.0], ["20", "20", "20"])
+    # NX 10's Python UF wrapper has no CreateBlock1; open a shipped sample
+    # part with a solid instead. OpenBaseDisplay returns a tuple and raises if
+    # the part is already open, so ignore both cases and check Work again.
     try:
-        ufs.Modl.Update()
+        session.Parts.OpenBaseDisplay(SAMPLE_PART)
     except Exception:
-        session.UpdateManager.DoUpdate(0)
-    return part
+        pass
+    part = session.Parts.Work
+    if part is not None and list(part.Bodies):
+        return part
+    raise RuntimeError("no work part with a body; open a part before running")
 
 
 def _paths(fixed_case, fixed_out, case_dir, result_dir, name):

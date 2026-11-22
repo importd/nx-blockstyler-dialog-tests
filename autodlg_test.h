@@ -178,13 +178,15 @@ inline unsigned __stdcall watch_thread(void *param) {
     ThreadState *st = reinterpret_cast<ThreadState *>(param);
     Sleep(static_cast<DWORD>(st->timeout_ms));
     if (st->no_close) {
-        if (find_dialog() != NULL && st->kill_on_hang) ExitProcess(3);
+        if (find_dialog() != NULL && st->kill_on_hang)
+            TerminateProcess(GetCurrentProcess(), 3);
         return 0;
     }
     if (find_dialog() == NULL) return 0;
     post_close();
     Sleep(1000);
-    if (find_dialog() != NULL && st->kill_on_hang) ExitProcess(3);
+    if (find_dialog() != NULL && st->kill_on_hang)
+        TerminateProcess(GetCurrentProcess(), 3);
     return 0;
 }
 

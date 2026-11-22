@@ -216,7 +216,7 @@ set.linear_dim0=12.5
   - `PostMessageW(hwnd, WM_CLOSE, 0, 0)`；
   - 记录 `close_attempted=1`。
 - 结果文件在尝试关窗**之前**写完。
-- 看门狗：超过 `AUTODLG_TIMEOUT_MS` 对话框仍在，补发一次 `WM_CLOSE`；再等 1000ms 仍在且 `AUTODLG_KILL_ON_HANG=1`，用 `ExitProcess(3)` 结束专用测试 NX 进程。`launch.bat` 之后照常跑 `report.py`，缺失结果记为 FAIL(timeout)。
+- 看门狗：超过 `AUTODLG_TIMEOUT_MS` 对话框仍在，补发一次 `WM_CLOSE`；再等 1000ms 仍在且 `AUTODLG_KILL_ON_HANG=1`，用 `TerminateProcess(GetCurrentProcess(), 3)` 结束专用测试 NX 进程。不要用 `ExitProcess`：2026-11-22 实测在模态 Block UI 对话框期间从后台线程调 `ExitProcess` 会触发 NX `0xC000000D` 未处理异常。`launch.bat` 之后照常跑 `report.py`，缺失结果记为 FAIL(timeout)。
 - `AUTODLG_NO_CLOSE=1` 用于第 12.4 条的确定性验证。
 - 注：ESC（`WM_KEYDOWN/UP VK_ESCAPE`）实测关不掉 Block UI 对话框，只作最后兜底，不放在主路径。
 
@@ -239,7 +239,7 @@ set.linear_dim0=12.5
 ## 13. 已确认的默认值（2026-11-22 用户确认）
 
 1. **关不掉时强制结束专用 NX 进程：是。**
-   `AUTODLG_KILL_ON_HANG=1`，结果先落盘，然后 `ExitProcess(3)`，由 `report.py` 出报告。测试用临时零件、不保存。
+   `AUTODLG_KILL_ON_HANG=1`，结果先落盘，然后 `TerminateProcess(GetCurrentProcess(), 3)`，由 `report.py` 出报告。测试用临时零件、不保存。
 
 2. **`apply_cb()` 在 `dialogShown_cb` 里直接调用：v1 接受。**
    对当前空壳回调没问题。第一次接真实对话框前，若其 `apply_cb` 依赖“对话框已经显示/用户已提交”，再改成显示后触发（`PerformApply` 或 UI 线程定时器）。

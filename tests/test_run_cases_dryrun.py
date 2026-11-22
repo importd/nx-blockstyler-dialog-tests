@@ -1,4 +1,4 @@
-import json, os, sys, tempfile, unittest
+import json, os, subprocess, sys, tempfile, unittest
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
@@ -35,6 +35,22 @@ class PathTests(unittest.TestCase):
         self.assertFalse(fixed)
         self.assertTrue(case.endswith("x.ini"))
         self.assertTrue(out.endswith("x.ini"))
+
+
+class JournalImportTests(unittest.TestCase):
+    def test_imports_when_script_dir_not_on_sys_path(self):
+        harness_dir = os.path.join(HERE, "harness")
+        script = os.path.join(harness_dir, "run_cases.py")
+        code = (
+            "import os, sys, runpy\n"
+            "h = os.path.abspath(%r)\n"
+            "sys.path = [p for p in sys.path if os.path.abspath(p) != h]\n"
+            "runpy.run_path(%r, run_name='autodlg_import_check')\n"
+        ) % (harness_dir, script)
+        proc = subprocess.run([sys.executable, "-c", code], cwd=HERE,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(proc.returncode, 0,
+                         proc.stderr.decode("utf-8", "replace"))
 
 
 class LayoutTests(unittest.TestCase):

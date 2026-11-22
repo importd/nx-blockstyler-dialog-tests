@@ -7,9 +7,12 @@ import os
 import shutil
 import sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
 import harness_core as H
 
-HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DLL = os.path.join(ROOT, "build", "baseDialog_test.dll")
 DEFAULT_CASES = os.path.join(HERE, "cases.json")

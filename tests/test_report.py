@@ -2,6 +2,9 @@ import json, os, sys, tempfile, unittest
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
+MODDIR = os.path.join(HERE, "harness")
+if MODDIR not in sys.path:
+    sys.path.insert(0, MODDIR)
 import report
 
 

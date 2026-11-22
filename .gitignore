@@ -7,3 +7,6 @@ application/
 *.exp
 *.lib
 *.bak
+__pycache__/
+*.pyc
+build/

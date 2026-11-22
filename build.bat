@@ -16,6 +16,20 @@ copy /y baseDialog.dlx application\baseDialog.dlx >nul
 
 set "NODEBUG=1"
 
+if "%~1"=="prod" goto prod
+
+cl -nologo -c -EHsc -DCRTAPI1=_cdecl -DCRTAPI2=_cdecl -GS ^
+   -D_AMD64_=1 -DWIN64 -D_WIN64 -DWIN32 -D_WIN32 -W4 ^
+   -D_WIN32_IE=0x0500 -DWINVER=0x0500 -Ox -DNDEBUG ^
+   -D_MT -D_DLL -MD -I. -I"%UGII_USERFCN%" baseDialog_test.cpp
+if errorlevel 1 exit /b 1
+
+call "%UGII_USERFCN%\uflink.bat" UFDLL baseDialog_test.dll
+if errorlevel 1 exit /b 1
+echo built baseDialog_test.dll
+exit /b 0
+
+:prod
 cl -nologo -c -EHsc -DCRTAPI1=_cdecl -DCRTAPI2=_cdecl -GS ^
    -D_AMD64_=1 -DWIN64 -D_WIN64 -DWIN32 -D_WIN32 -W4 ^
    -D_WIN32_IE=0x0500 -DWINVER=0x0500 -Ox -DNDEBUG ^
@@ -24,5 +38,4 @@ if errorlevel 1 exit /b 1
 
 call "%UGII_USERFCN%\uflink.bat" UFDLL baseDialog.dll
 if errorlevel 1 exit /b 1
-
 echo built baseDialog.dll

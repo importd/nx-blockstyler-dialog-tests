@@ -10,14 +10,15 @@ import sys
 import harness_core as H
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DLL = os.path.join(HERE, "baseDialog_test.dll")
+ROOT = os.path.dirname(HERE)
+DLL = os.path.join(ROOT, "build", "baseDialog_test.dll")
 DEFAULT_CASES = os.path.join(HERE, "cases.json")
-FIXED_CASE = os.path.join(HERE, "tmp", "cases", "current.ini")
-FIXED_OUT = os.path.join(HERE, "tmp", "results", "current.ini")
+FIXED_CASE = os.path.join(ROOT, "tmp", "cases", "current.ini")
+FIXED_OUT = os.path.join(ROOT, "tmp", "results", "current.ini")
 
 
 def _tmp(tmp_dir):
-    return tmp_dir or os.path.join(HERE, "tmp")
+    return tmp_dir or os.path.join(ROOT, "tmp")
 
 
 SAMPLE_PART = (r"D:\Program Files\Siemens\NX 10.0\UGII"

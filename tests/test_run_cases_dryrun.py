@@ -35,3 +35,17 @@ class PathTests(unittest.TestCase):
         self.assertFalse(fixed)
         self.assertTrue(case.endswith("x.ini"))
         self.assertTrue(out.endswith("x.ini"))
+
+
+class LayoutTests(unittest.TestCase):
+    def test_paths_point_into_layout(self):
+        root = HERE
+        self.assertEqual(run_cases.DEFAULT_CASES,
+                         os.path.join(root, "harness", "cases.json"))
+        self.assertEqual(run_cases.DLL,
+                         os.path.join(root, "build", "baseDialog_test.dll"))
+        self.assertEqual(run_cases.FIXED_CASE,
+                         os.path.join(root, "tmp", "cases", "current.ini"))
+        self.assertEqual(run_cases.FIXED_OUT,
+                         os.path.join(root, "tmp", "results", "current.ini"))
+        self.assertEqual(run_cases._tmp(None), os.path.join(root, "tmp"))
